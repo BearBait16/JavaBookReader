@@ -22,6 +22,11 @@ public class aiReader {
             genericOllamaRequest(model, prompt);
         });
         ollamaThread.start();
+        try {
+            ollamaThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     static void bomReader() {
@@ -45,17 +50,19 @@ public class aiReader {
     }
 
     public static void genericOllamaRequest(String model, String prompt) {
+        System.out.println("Model: " + model);
+        System.out.println("Prompt: " + prompt);
         String api = "http://localhost:11434/api/generate";
         String jsonBody = String.format("""
                 {
-                    "mode": "%s"
+                    "model": "%s",
                     "prompt": "%s"
                 }
                                     """, model, prompt);
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(api))
-                .header("Content-Type", "application/json")
+                .headers(Map.of("Content-Type", "application/json"))
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody, StandardCharsets.UTF_8))
                 .build();
         ;
